@@ -11,22 +11,20 @@ namespace MetricsManager.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-       
-        private readonly WeatherHolder holder;
+        private readonly WeatherHolder _holder;
 
         public WeatherForecastController(WeatherHolder holder)
         {
-            this.holder = holder;
+            _holder = holder;
         }
-        
-        
+
         [HttpPost("create")]
-        public IActionResult Create([FromQuery] string date, string temperatureC)
+        public IActionResult Create([FromQuery] DateTime date, [FromQuery] int temperatureC)
         {
-            holder.WhetherStatistics.Add(new WeatherForecast
+            _holder.WhetherStatistics.Add(new WeatherForecast
             {
-                Date = DateTime.Parse(date),
-                TemperatureC = Int32.Parse(temperatureC)
+                Date = date,
+                TemperatureC = temperatureC
             });
             return Ok();
         }
@@ -34,31 +32,25 @@ namespace MetricsManager.Controllers
         [HttpGet("read")]
         public IActionResult Read()
         {
-            return Ok(holder.WhetherStatistics);
+            return Ok(_holder.WhetherStatistics);
         }
 
         [HttpPut("update")]
-        public IActionResult Update([FromQuery] string date, string newTemperatureValue)
+        public IActionResult Update([FromQuery] DateTime date, [FromQuery] int newTemperatureValue)
         {
-            DateTime dateTime = DateTime.Parse(date);
-            int newValue = Int32.Parse(newTemperatureValue);
-            
-            foreach (WeatherForecast item in holder.WhetherStatistics)
+            foreach (WeatherForecast item in _holder.WhetherStatistics)
             {
-                if (item.Date == dateTime)
-                    item.TemperatureC = newValue;
+                if (item.Date == date)
+                    item.TemperatureC = newTemperatureValue;
             }
-
+            
             return Ok();
         }
 
         [HttpDelete("delete")]
-        public IActionResult Delete([FromQuery] string dateFrom, string dateTo)
+        public IActionResult Delete([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
         {
-            DateTime deleteFromDate = DateTime.Parse(dateFrom);
-            DateTime deleteByDate = DateTime.Parse(dateTo);
-            
-            holder.WhetherStatistics = holder.WhetherStatistics.Where(w => w.Date < deleteFromDate && w.Date > deleteByDate).ToList();
+            _holder.WhetherStatistics = _holder.WhetherStatistics.Where(w => w.Date < dateFrom && w.Date > dateTo).ToList();
             return Ok();
         }
     }
